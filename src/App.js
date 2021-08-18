@@ -1,10 +1,17 @@
-import AppCss from './App.module.css';
+// import AppCss from './App.module.css';
+import Layout from './components/Layout/Layout';
+import BurgerBuilder from './containers/BurgerBuilder/BurgerBuilder';
 
 function App() {
   return (
-    <div className={AppCss.App}>
-      <h1>hello world</h1>
-    </div>
+
+    <Layout>
+      <BurgerBuilder></BurgerBuilder>
+    </Layout>
+
+    // <div className={AppCss.App}>
+    //   <h1>hello world</h1>
+    // </div>
   );
 }
 
