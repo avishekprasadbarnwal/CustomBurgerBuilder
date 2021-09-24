@@ -1,9 +1,13 @@
 // This file will contain all jsx for the Burger
 import React from 'react';
+// import {withRouter} from 'react-router-dom';
+
 import classes from './Burger.module.css';
 import BurgerIngredient from './BurgerIngredients/BurgerIngredient';
 
 const Burger = (props) => {
+
+    // console.log(props)
 
     let transformedIngredients = Object.keys(props.ingredients)
         .map(igKey => {

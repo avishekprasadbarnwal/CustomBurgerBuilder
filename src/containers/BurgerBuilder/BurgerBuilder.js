@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import {withRouter} from 'react-router-dom';
+
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Burger from '../../components/Burger/Burger';
 import Auxiliary from '../../hoc/Auxiliary/Auxiliary';
@@ -6,6 +8,7 @@ import Modal from '../../components/UI/Modal/Modal';
 import OderSummary from '../../components/Burger/OrderSummary/OderSummary';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
+
 
 // importing the instance of axios from axios-orders.js
 import axios from '../../axios-orders';
@@ -38,6 +41,7 @@ class BurgerBuilder extends Component {
 
     // Fetching data from the server
     componentDidMount() {
+        // console.log(this.props);
         axios.get('https://react-burger-builder-2437f-default-rtdb.firebaseio.com/ingredients.json')
             .then(response => {
                 this.setState({ingredients: response.data})
@@ -102,37 +106,23 @@ class BurgerBuilder extends Component {
     }
 
     purchaseContinueHandler = () => {
-        // alert("You continue");
 
-        this.setState({
-            loading: true
-        })
-
-        // Creating a dummy order details that will be sent to the server
-        const order = {
-            ingredients: null,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'Avishek',
-                address: {
-                    street: 'hello street sector-12',
-                    zipCode: '12234',
-                    country: 'India'
-                },
-                email: 'texst@gmail.com'
-            },
-            deliveryMethod: 'fastest'
+        // Adding parameters to the search query passed in the url
+        const queryParams = [];
+        // Passing property_name = property_value and storing them in queryParams[]
+        for(let i in this.state.ingredients){
+            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]))
         }
-        // Sending data to our database
-        axios.post('/orders.json', order)
-            .then(response => {
-                // console.log(response);
-                this.setState({loading: false, purchasing: false});
-            })
-            .catch(err => {
-                // console.log(err);
-                this.setState({loading: false, purchasing: false});
-            });
+
+        queryParams.push('price=' + this.state.totalPrice);
+        const queryString = queryParams.join('&');
+
+        // once the user pressed continue present in burger summary i.e the user reached this handler
+        // then the user will be automatically pushed/redirected to /checkout page 
+        this.props.history.push({
+            pathname: '/checkout',
+            search: '?' + queryString
+        });
     }
 
     render() {
@@ -192,4 +182,4 @@ class BurgerBuilder extends Component {
     }
 }
 
-export default withErrorHandler(BurgerBuilder, axios);
+export default withRouter(withErrorHandler(BurgerBuilder, axios));
