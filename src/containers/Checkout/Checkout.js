@@ -37,6 +37,11 @@ class Checkout extends Component{
         this.setState({ingredients: ingredients, totalPrice: price});
     }
 
+    componentDidMount() {
+        console.log('[containers/Checkout/Checkout.js] is throughing warning');
+
+    }
+
     checkoutCancelledHandler = () => {
         this.props.history.goBack();
     }
