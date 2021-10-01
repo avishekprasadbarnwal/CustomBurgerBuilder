@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { withRouter, Route } from 'react-router';
+import {connect} from 'react-redux';
 
 import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary';
 import ContactData from './ContactData/ContactData';
@@ -7,35 +8,35 @@ import ContactData from './ContactData/ContactData';
 // Used to display the checkout page
 class Checkout extends Component{
 
-    state = {
-        ingredients: null,
-        totalPrice: 0
-    }
+    // state = {
+    //     ingredients: null,
+    //     totalPrice: 0
+    // }
 
-    componentWillMount() {
+    // componentWillMount() {
 
-        // Here URLSearchParams basically retuns the array of the key and value
-        const query = new URLSearchParams(this.props.location.search);
-        const ingredients = {};
-        let price = 0;
+    //     // Here URLSearchParams basically retuns the array of the key and value
+    //     const query = new URLSearchParams(this.props.location.search);
+    //     const ingredients = {};
+    //     let price = 0;
 
-        // query.entries() basically gives array of ojects of key-value pair
-        for (let param of query.entries()){
+    //     // query.entries() basically gives array of ojects of key-value pair
+    //     for (let param of query.entries()){
 
-            if(param[0] === 'price'){
-                price = param[1];
-                console.log(price);
-            } else {
-                // ['salad', '1']
-                ingredients[param[0]] = parseInt(param[1]);
-                // console.log(ingredients);
-            }
+    //         if(param[0] === 'price'){
+    //             price = param[1];
+    //             console.log(price);
+    //         } else {
+    //             // ['salad', '1']
+    //             ingredients[param[0]] = parseInt(param[1]);
+    //             // console.log(ingredients);
+    //         }
             
-        }
-        console.log(ingredients);
-        console.log(price);
-        this.setState({ingredients: ingredients, totalPrice: price});
-    }
+    //     }
+    //     console.log(ingredients);
+    //     console.log(price);
+    //     this.setState({ingredients: ingredients, totalPrice: price});
+    // }
 
     componentDidMount() {
         console.log('[containers/Checkout/Checkout.js] is throughing warning');
@@ -52,17 +53,17 @@ class Checkout extends Component{
 
     render() {
         
-        console.log(this.props);
+        // console.log(this.props);
 
         return(
             <div>
                 <CheckoutSummary 
                     checkoutCancelled={this.checkoutCancelledHandler}
                     checkoutContinued={this.checkoutContinuedHandler}
-                    ingredients={this.state.ingredients}></CheckoutSummary>
+                    ingredients={this.props.ingredients}></CheckoutSummary>
                 <Route 
                     path={this.props.match.path + '/contact-data'} 
-                    render={() => (<ContactData ingredients={this.state.ingredients} price={this.state.totalPrice}></ContactData>)}></Route>
+                    component={ContactData} />
 
 {/* 
                 <Route 
@@ -75,4 +76,10 @@ class Checkout extends Component{
     }
 }
 
-export default withRouter(Checkout);
+const mapStateToProps = (state) => {
+    return {
+        ingredients: state.ingredients
+    }
+}
+
+export default connect(mapStateToProps)(withRouter(Checkout));
