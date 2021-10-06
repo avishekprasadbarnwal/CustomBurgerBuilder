@@ -8,6 +8,8 @@ import classes from './ContactData.module.css';
 import Button from '../../../components/UI/Button/Button';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input  from '../../../components/UI/Input/Input';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import * as actions from '../../../store/actions/index';
 
 
 class ContactData extends Component{
@@ -105,8 +107,7 @@ class ContactData extends Component{
                     value: 'fastest'
                 }
             },
-            formIsValid: false,
-            loading: false
+            formIsValid: false
         }  
     };
 
@@ -144,9 +145,9 @@ class ContactData extends Component{
         // preventDefault will prevent default setting to not to execute
         event.preventDefault();
 
-        this.setState({
-            loading: true
-        });
+        // this.setState({
+        //     loading: true
+        // });
 
         // we need to pass only the key and its value element to the server like 
         // name and the data present in the value key inside it
@@ -166,18 +167,20 @@ class ContactData extends Component{
             orderData: formData
         }
 
-        // Sending data to our database
-        axios.post('/orders.json', order)
-            .then(response => {
-                // console.log(response);
-                this.setState({loading: false});
-                this.props.history.push('/');
-            })
-            .catch(err => {
-                // console.log(err);
-                this.setState({loading: false});
-            });
-            console.log(order);
+        this.props.onOrderBurger(order);
+
+        // // Sending data to our database
+        // axios.post('/orders.json', order)
+        //     .then(response => {
+        //         // console.log(response);
+        //         this.setState({loading: false});
+        //         this.props.history.push('/');
+        //     })
+        //     .catch(err => {
+        //         // console.log(err);
+        //         this.setState({loading: false});
+        //     });
+        //     console.log(order);
     }
 
     // inputIdentifier will help us to know which object/key that we want to update
@@ -246,7 +249,7 @@ class ContactData extends Component{
         );
 
         // Showing the spinner when the form data is sent to server
-        if(this.state.loading === true){
+        if(this.props.loading === true){
             form = <Spinner></Spinner>
         }
         
@@ -262,9 +265,16 @@ class ContactData extends Component{
 
 const mapStateToProps = (state) => {
     return{
-        ingredients: state.ingredients,
-        price: state.totalPrice
+        ingredients: state.burgerBuilder.ingredients,
+        price: state.burgerBuilder.totalPrice,
+        loading: state.order.loading
     }
 }
 
-export default connect(mapStateToProps)(withRouter(ContactData));
+const mapDispatchToProps = (dispatch) => {
+    return{
+      onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData))
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(withRouter(ContactData), axios));
