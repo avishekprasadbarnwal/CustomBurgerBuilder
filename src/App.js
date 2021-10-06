@@ -16,9 +16,6 @@ function App() {
           <Route path="/" exact component={BurgerBuilder} />
           <Route path="/orders" component={Orders} />
           <Route path="/checkout" component={Checkout} />
-
-          {/* <BurgerBuilder></BurgerBuilder>
-          <Checkout></Checkout> */}
         </Layout>
       </BrowserRouter>
     </Provider>
