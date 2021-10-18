@@ -5,9 +5,9 @@ import Button from '../../UI/Button/Button';
 class OderSummary extends Component {
 
     // Making a check when the OderSummary component is updated
-    componentDidUpdate(){
-        console.log("[OrderSummary] componentDidUpdate");
-    }
+    // componentDidUpdate(){
+    //     console.log("[OrderSummary] componentDidUpdate");
+    // }
 
     render() {
 

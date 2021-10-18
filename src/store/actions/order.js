@@ -26,11 +26,11 @@ export const purchaseBurgerStart = () => {
     }
 }
 
-export const purchaseBurger = (orderData) => {
+export const purchaseBurger = (orderData, token) => {
     return (dispatch) => {
         dispatch(purchaseBurgerStart());
         // Sending data to our database
-        axios.post('/orders.json', orderData)
+        axios.post('/orders.json?auth=' + token , orderData)
             .then(response => {
                 dispatch(puchaseBurgerSuccess(response.data.name, orderData))
             })
@@ -67,13 +67,15 @@ export const fetchOrdersStart = () => {
     }
 }
 
-export const fetchOrders = () => {
+export const fetchOrders = (token, userId) => {
     return (dispatch) => {
 
         // Showing spinner while loading
         dispatch(fetchOrdersStart());
 
-        axios.get('/orders.json')
+        const queryParams= '?auth=' + token + '&orderBy="userId"&equalTo="' + userId + '"';
+
+        axios.get('/orders.json' + queryParams)
             .then(response => {
                 // Converting the orders that we received in the form of object into an array
                 const fetchedOrders = [];
@@ -83,6 +85,7 @@ export const fetchOrders = () => {
                         id: key
                     });
                 }
+                // console.log(fetchedOrders)
 
                 dispatch(fetchOrdersSuccess(fetchedOrders));
             })

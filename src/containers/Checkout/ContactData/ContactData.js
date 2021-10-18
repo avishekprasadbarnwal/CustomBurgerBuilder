@@ -10,6 +10,7 @@ import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input  from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
 import * as actions from '../../../store/actions/index';
+import {updateObject, checkValidity} from '../../../shared/utility';
 
 
 class ContactData extends Component{
@@ -111,46 +112,12 @@ class ContactData extends Component{
         }  
     };
 
-    // Method for checking validity of the input data that is sent by the user in form
-    checkValidity(value, validation) {
-        let isValid = true;
-        
-        // Checking if the value received is empty or not i.e has some data or not
-        // if there is some data then it will set isValid to true
-        if(validation.required){
-            isValid = value.trim() !== '' && isValid;
-        }
-
-        if(validation.minLength){
-            isValid = value.length >= validation.minLength && isValid;
-        }
-
-        if(validation.maxLength){
-            isValid = value.length <= validation.maxLength && isValid;
-        }
-
-        // console.log(validation)
-
-        // if(validation.maxLength){
-        //     isValid = value.length <= validation.maxLength;
-        // }
-
-        return isValid;
-    }
-
     // While placing the order we need to pass all the order details as well as the contact details 
     // to the server
     orderHandler = (event) => {
 
         // preventDefault will prevent default setting to not to execute
         event.preventDefault();
-
-        // this.setState({
-        //     loading: true
-        // });
-
-        // we need to pass only the key and its value element to the server like 
-        // name and the data present in the value key inside it
         const formData = {}
         // Loop through every element in the orderForm
         for(let formElementIdentifier in this.state.orderForm){
@@ -164,54 +131,34 @@ class ContactData extends Component{
         const order = {
             ingredients: this.props.ingredients,
             price: this.props.price,
-            orderData: formData
+            orderData: formData,
+            userId: this.props.userId
         }
 
-        this.props.onOrderBurger(order);
+        this.props.onOrderBurger(order, this.props.token);
 
-        // // Sending data to our database
-        // axios.post('/orders.json', order)
-        //     .then(response => {
-        //         // console.log(response);
-        //         this.setState({loading: false});
-        //         this.props.history.push('/');
-        //     })
-        //     .catch(err => {
-        //         // console.log(err);
-        //         this.setState({loading: false});
-        //     });
-        //     console.log(order);
     }
 
     // inputIdentifier will help us to know which object/key that we want to update
     inputChangedHandler = (event, inputIdentifier) => {
-        // In this case we cannot directly update the state because we have to update
-        // the state immutably i.e not changing the data individually and so we need
-        //  to clone the orderForm data deeply
         
-        // Creating clone of orderForm state
-        const updatedOrderForm = {
-            ...this.state.orderForm
-        };
 
         // Creating the clone of formElements present in form using its key as inputIdentifier
-        const updatedFormElement = {
-            ...updatedOrderForm[inputIdentifier]
-        };
+        const updatedFormElement = updateObject(this.state.orderForm[inputIdentifier],{
+           value:event.target.value,
+           valid:checkValidity(event.target.value, this.state.orderForm[inputIdentifier].validation),
+           touched: true
+        });
 
-        updatedFormElement.value = event.target.value;
-        updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation)
-        updatedFormElement.touched = true;
-
-        // console.log(updatedFormElement.valid);
-
-        updatedOrderForm[inputIdentifier] = updatedFormElement;
-
+        const updatedOrderForm = updateObject(this.state.orderForm, {
+            [inputIdentifier] : updatedFormElement
+        })
+        
         let formIsValid = true;
         for(let inputIdentifier in updatedOrderForm){
             formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;
         }
-        console.log(formIsValid);
+        // console.log(formIsValid);
 
         // Finally setting up the updatedOrderForm data to orderForm
         this.setState({orderForm: updatedOrderForm, formIsValid: formIsValid});
@@ -267,13 +214,15 @@ const mapStateToProps = (state) => {
     return{
         ingredients: state.burgerBuilder.ingredients,
         price: state.burgerBuilder.totalPrice,
-        loading: state.order.loading
+        loading: state.order.loading,
+        token: state.auth.token,
+        userId: state.auth.userId
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return{
-      onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData))
+      onOrderBurger: (orderData, token) => dispatch(actions.purchaseBurger(orderData, token))
     }
 };
 
