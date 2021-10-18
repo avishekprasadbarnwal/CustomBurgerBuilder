@@ -25,7 +25,8 @@ class BurgerBuilder extends Component {
         super(props);
         this.state = {
             purchasing: false
-        }
+        };
+        this.props.onInitIngredients(); 
     }
 
     updatePurchaseState = (ingredients) => {
@@ -41,7 +42,13 @@ class BurgerBuilder extends Component {
     }
 
     purchaseHandler = () => {
-        this.setState({purchasing: true});
+        if(this.props.isAuthenticated){
+            this.setState({purchasing: true});
+        } else {
+            this.props.onSetAuthRedirectPath('/checkout')
+            this.props.history.push('/auth');
+        }
+        
     }
 
     purchaseCancelHandler = () => {
@@ -57,16 +64,19 @@ class BurgerBuilder extends Component {
     }
 
     // Fetching ingredients data from the server
-    componentDidMount() {
-        this.props.onInitIngredients(); 
-    }
+    // static getDerivedStateFromProps(props, state){
+    //     // props.onInitIngredients();
+    // }
+    // componentWillMount() {
+    //     this.props.onInitIngredients(); 
+    // }
 
     render() {
         const disabledInfo = {
             ...this.props.ings
         };
 
-        console.log(this.props.ings)
+        // console.log(this.props.ings)
 
         for(let key in disabledInfo){
             disabledInfo[key] = disabledInfo[key] <= 0;
@@ -94,6 +104,7 @@ class BurgerBuilder extends Component {
                             ingredientRemoved={this.props.onIngredientRemoved}
                             disabled={disabledInfo}
                             price={this.props.price}
+                            isAuth={this.props.isAuthenticated}
                             purchasable={this.updatePurchaseState(this.props.ings)}
                             order={this.purchaseHandler}
                     ></BuildControls>
@@ -126,18 +137,20 @@ const mapStateToProps = (state) => {
     return {
         ings: state.burgerBuilder.ingredients,
         price: state.burgerBuilder.totalPrice,
-        error: state.burgerBuilder.error
+        error: state.burgerBuilder.error,
+        isAuthenticated: state.auth.token !== null
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return{
+        onTryAutoSignup: () => dispatch(actionTypes.authCheckData()),
         onIngredientAdded: (ingName) => dispatch(actionTypes.addIngredient(ingName)),
         onIngredientRemoved: (ingName) => dispatch(actionTypes.removeIngredient(ingName)),
         onInitIngredients: () => dispatch(actionTypes.initIngredients()),
-        onInitPurchase: () => dispatch(actionTypes.purchaseInit())
-    }
-    
+        onInitPurchase: () => dispatch(actionTypes.purchaseInit()),
+        onSetAuthRedirectPath: (path) => dispatch(actionTypes.setAuthRedirectPath(path))
+    } 
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(BurgerBuilder, axios));
