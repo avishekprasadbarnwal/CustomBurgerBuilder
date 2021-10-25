@@ -44,14 +44,14 @@ export const initIngredients = () => {
         axios.get('https://react-burger-builder-2437f-default-rtdb.firebaseio.com/ingredients.json')
             .then(response => {
                 // dispatching an action when fetching of ingredients data is successful
-                dispatch(setIngredients(response.data))
+                dispatch(setIngredients(response.data));
             })
             .catch(err => {
                 console.log(err);
-                dispatch(fetchIngredientfailed())
-            })
-    }
-}
+                dispatch(fetchIngredientfailed());
+            });
+    };
+};
 
 
 
